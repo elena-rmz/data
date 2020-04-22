@@ -1,0 +1,76 @@
+---
+title: "Ramirez, Washington Co Jail, April 1"
+output: html_document
+---
+## Install Packages
+
+install.packages("rio")
+install.packages("janitor")
+install.packages("tidyverse")
+install.packages("rmarkdown")
+library("knitr")
+knit2html("file")
+
+## Data
+
+```{r load data}
+Roster_March18 <- rio::import("C://Users//Owner//Desktop//Spring 2020//WashCoInmates_3_27_2020.R.xlsx", which = "March18Roster")
+
+Roster_March27 <- rio::import("C://Users//Owner//Desktop//Spring 2020//WashCoInmates_3_27_2020.R.xlsx", which = "March27Roster")
+
+```
+
+## Cleaning Data
+
+```{r include=FALSE}
+Roster_March18$name2 <- gsub(",","_", Roster_March18$`Name Last, First`)
+Roster_March18$name2 <- gsub("\\s", "", Roster_March18$name2)
+
+Roster_March27$name2 <- gsub(",","_", Roster_March27$`Name Last, First`)
+Roster_March27$name2 <- gsub("\\s", "", Roster_March27$name2)
+
+janitor::clean_names(Roster_March18)
+janitor::clean_names(Roster_March27)
+```
+
+## Comparing Data
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE)
+```
+
+```{r setup}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+ReleasedInmates <-  Roster_March18 %>%
+  anti_join(Roster_March27, by= "name2")
+
+YAY <- Roster_March27 %>%
+  inner_join(Roster_March18, by="name2")
+```
+## Q1: What is the difference between the two populations?
+
+March 27 data had 637 inmates compared to the March 18 data that had 418 inmates. The "CompareTable" has 238 of the same inmates. 
+
+## Q2: How many of the March 18 inmates were no longer listed as of March 27?
+
+There were 180 inmates who were no longer listed on the March 27 roster from the March 18 roster.
+
+## Q3: How many new inmates were there on March 27 that were not there on March 18?
+
+On March 27, the Washington County jail had 218 new inmates compared to March 18.
+
+## Q4: Describe percentage change of homeless people from March 18 to March 27.
+On March 18, 73 of the 637 Washington County inmates were homeless, or 11% of the jailed population.
+
+On March 27, 42 of the 418 Washington County inmates were homeless, or 10% of the jailed population.
+
+Between March 18 and the 27, the Washington County had a 1.4% change of the jailed homeless population. 
+```{r}
+Roster_March18 %>%
+  count(Homeless)
+
+Roster_March27 %>%
+  count(Homeless)
+
+CompareTable %>%
+  count(Homeless)
